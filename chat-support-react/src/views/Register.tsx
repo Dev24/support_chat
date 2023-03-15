@@ -40,15 +40,13 @@ export const Register = ({
   return (
     <div className="container h-full px-6 py-24 bg-blue-100 ">
       <div className="formWrapper border-blue-300 rounded-lg bg-white py-6 px-6">
-        <div className="md:w-8/12 lg:ml-6 lg:w-5/12">
-          <div className="logo">Live Chat</div>
-          <div className="title">Register</div>
-
-          <form onSubmit={handleSubmit} className="w-full max-w-sm">
+        <div className="logo">Chat with Support Team</div>
+        <div className="md:w-10/12 lg:ml-6 lg:w-10/12">
+          <form onSubmit={handleSubmit} className="w-full">
             <div className="md:flex md:items-center mb-6">
               <div className="md:w-1/3">
                 <label
-                  className="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4"
+                  className="block md:text-right mb-1 md:mb-0 pr-4"
                   htmlFor="subject"
                 >
                   Subject
@@ -56,6 +54,7 @@ export const Register = ({
               </div>
               <div className="md:w-2/3">
                 <input
+                  required
                   className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
                   type="text"
                   id="subject"
@@ -75,6 +74,7 @@ export const Register = ({
               </div>
               <div className="md:w-2/3">
                 <input
+                  required
                   className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
                   type="email"
                   id="email"
@@ -94,6 +94,7 @@ export const Register = ({
               </div>
               <div className="md:w-2/3">
                 <textarea
+                  required
                   className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
                   id="message"
                   value={initMessage}

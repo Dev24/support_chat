@@ -15,6 +15,20 @@ form {
   }
 }
 
+.formWrapper {
+  .logo {
+    color: #5d5b8d;
+    font-weight: bold;
+    font-size: 24px;
+    padding-bottom: 10px;
+  }
+
+  label {
+    color: #696883;
+    font-weight: bold;
+  }
+}
+
 .chat {
   .chatInfo {
     height: 50px;

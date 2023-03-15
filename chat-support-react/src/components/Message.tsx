@@ -2,11 +2,9 @@ import React from "react";
 import { MessageProps } from "../model/MessageProps";
 
 export const Message = ({
-  key,
   message,
   isOwner = false,
 }: {
-  key: string;
   message: MessageProps;
   isOwner?: boolean;
 }) => {
