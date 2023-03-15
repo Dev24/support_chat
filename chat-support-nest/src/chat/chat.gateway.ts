@@ -24,21 +24,23 @@ export class ChatGateway implements OnModuleInit {
 
   onModuleInit() {
     this.server.on('connection', (socket) => {
-      console.log(socket.id);
+      console.log(`connected to: ${socket.id}`);
     });
   }
 
   @SubscribeMessage('initSession')
   handleInitSession(@ConnectedSocket() client: Socket, @MessageBody() threadInfo: any) {
-    //console.log('session info: ', threadInfo, client.id);
+    const roomId: string = client.id;
+    console.log(`Joining room ${roomId}.`);
+    client.join(threadInfo.email);
     this.handleMessage(client, {
       email: 'Support Personel',
       content:
-        `Welcome to support chat ${threadInfo.email}.` +
+        `Welcome to support chat ${threadInfo.email}. ` +
         `For subject: ${threadInfo.subject}`,
       created: new Date(),
     });
-    this.handleMessage(client, {
+    this.relayMessage(client.id, roomId, {
       email: threadInfo.email,
       content: threadInfo.initMessage,
       created: new Date(),
@@ -47,31 +49,39 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('message')
   handleMessage(@ConnectedSocket() client: Socket, @MessageBody() body: any) {
-    console.log('message body: ', body);
+    const roomId: string = client.id;
+    this.relayMessage(client.id, roomId, body);
+  }
+
+  relayMessage(socketId: string, roomId: string, message: any) {
+    console.log('relaying message. body: ', message);
+
+    // broadcasting this to all rooms to play with, if want single room replace with below line
+    //this.server.to(roomId).emit('message', {
     this.server.emit('message', {
-      email: body.email,
-      content: body.content,
-      created: body.created,
+      email: message.email,
+      content: message.content,
+      created: message.created,
     });
     this.chatRepository.insert({
-      session: client.id,
-      email: body.email,
-      content: body.content,
-      created: body.created,
+      session: socketId,
+      email: message.email,
+      content: message.content,
+      created: message.created,
     });
   }
 
-
-
   @SubscribeMessage('endSession')
   handleEndSession(@ConnectedSocket() client: Socket, @MessageBody() threadInfo: any) {
-    console.log('session info: ', threadInfo);
-    this.handleMessage(client, {
+    const roomId: string = client.id;
+    this.relayMessage(client.id, roomId, {
       email: 'Support Personel',
       content:
         'Thank you for `your messages, it has been saved in our system. ' +
-        'All staff are busy at the moment. We will get back to you at the earliest convinience.',
+        'We will get back to you at the earliest convinience.',
       created: new Date(),
     });
+    console.log(`Leaving room ${roomId}.`);
+    client.leave(threadInfo.email);
   }
 }
