@@ -15,11 +15,15 @@ export const Home = ({ threadInfo }: { threadInfo: ThreadInfoProps }) => {
 
   const endSession = () => {
     socket?.emit("endSession", "");
+    setTimeout(function () {
+      window.location.replace("/");
+    }, 5000);
   };
 
   useEffect(() => {
     if (!socket) {
-      const newSocket = io("http://localhost:9000");
+      const newSocket = io("http://localhost:9000"); //"http://52.221.183.173");
+      newSocket.auth = { email: threadInfo.email };
       setSocket(newSocket);
       newSocket.emit("initSession", threadInfo);
     }
