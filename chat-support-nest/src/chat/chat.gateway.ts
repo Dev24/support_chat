@@ -28,11 +28,14 @@ export class ChatGateway implements OnModuleInit {
     });
   }
 
+
+
   @SubscribeMessage('initSession')
   handleInitSession(@ConnectedSocket() client: Socket, @MessageBody() threadInfo: any) {
-    const roomId: string = client.id;
+    const roomId: string = this.getRoomId(client);
     console.log(`Joining room ${roomId}.`);
-    client.join(threadInfo.email);
+
+    client.join(roomId);
     this.handleMessage(client, {
       email: 'Support Personel',
       content:
@@ -49,16 +52,35 @@ export class ChatGateway implements OnModuleInit {
 
   @SubscribeMessage('message')
   handleMessage(@ConnectedSocket() client: Socket, @MessageBody() body: any) {
-    const roomId: string = client.id;
+    const roomId: string = this.getRoomId(client);
     this.relayMessage(client.id, roomId, body);
+  }
+
+  @SubscribeMessage('endSession')
+  handleEndSession(@ConnectedSocket() client: Socket, @MessageBody() threadInfo: any) {
+    const roomId: string = this.getRoomId(client);
+    this.relayMessage(client.id, roomId, {
+      email: 'Support Personel',
+      content:
+        `Thank you ${client.handshake.auth.email ?? ''}. ` +
+        'We will get back to you at the earliest convinience. Chat closing in 5 seconds.',
+      created: new Date(),
+    });
+    console.log(`Leaving room ${roomId}.`);
+    client.leave(threadInfo.email);
+    client.disconnect();
+  }
+
+  getRoomId(socket: Socket): string {
+    return socket.handshake.auth.email ?? socket.id;
   }
 
   relayMessage(socketId: string, roomId: string, message: any) {
     console.log('relaying message. body: ', message);
 
-    // broadcasting this to all rooms to play with, if want single room replace with below line
-    //this.server.to(roomId).emit('message', {
-    this.server.emit('message', {
+    // to broadcasting this to all rooms replace with below line
+    //this.server.emit('message', {
+    this.server.to(roomId).emit('message', {
       email: message.email,
       content: message.content,
       created: message.created,
@@ -71,17 +93,4 @@ export class ChatGateway implements OnModuleInit {
     });
   }
 
-  @SubscribeMessage('endSession')
-  handleEndSession(@ConnectedSocket() client: Socket, @MessageBody() threadInfo: any) {
-    const roomId: string = client.id;
-    this.relayMessage(client.id, roomId, {
-      email: 'Support Personel',
-      content:
-        'Thank you for `your messages, it has been saved in our system. ' +
-        'We will get back to you at the earliest convinience.',
-      created: new Date(),
-    });
-    console.log(`Leaving room ${roomId}.`);
-    client.leave(threadInfo.email);
-  }
 }
